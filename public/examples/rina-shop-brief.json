@@ -35,7 +35,8 @@
     },
     "whatsapp": "Hai! Serum Vitamin C 15% kami lagi best seller minggu ini — kulit cerah dalam 2 minggu, cuma Rp 185.000. Mau aku kirim link ordernya?"
   },
-  "heroImageUrl": "/placeholder-hero.svg",
+  "heroImageUrl": "/demo-hero.png",
+  "imageSource": "cached",
   "hookVideoUrl": "/demo-hook.mp4",
   "videoSource": "cached",
   "briefStatus": "complete"

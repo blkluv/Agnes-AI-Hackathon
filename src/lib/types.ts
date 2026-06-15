@@ -10,6 +10,7 @@ export type TargetBuyer =
 
 export type TrendSource = "live" | "cached";
 export type VideoSource = "live" | "cached";
+export type ImageSource = "live" | "cached";
 export type BriefStatus = "complete" | "incomplete";
 
 export interface ProductInput {
@@ -50,6 +51,7 @@ export interface ShopBriefData {
   script: string;
   channelCopy: ChannelCopy;
   heroImageUrl: string;
+  imageSource?: ImageSource;
   hookVideoUrl: string;
   videoSource: VideoSource;
   briefStatus: BriefStatus;

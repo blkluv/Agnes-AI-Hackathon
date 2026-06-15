@@ -1,10 +1,11 @@
-import OpenAI from "openai";
 import type { Category, ProductInput, TrendSignal } from "./types";
 
 const TEXT_TIMEOUT_MS = 25_000;
 const IMAGE_TIMEOUT_MS = 45_000;
-const VIDEO_POLL_TIMEOUT_MS = 60_000;
+const VIDEO_CREATE_TIMEOUT_MS = 15_000;
+const VIDEO_POLL_TIMEOUT_MS = 90_000;
 const VIDEO_POLL_INTERVAL_MS = 3_000;
+const VIDEO_NUM_FRAMES = 25; // must be 8*n+1
 
 export function getAgnesClient() {
   const apiKey = process.env.AGNES_API_KEY;
@@ -14,7 +15,7 @@ export function getAgnesClient() {
     return null;
   }
 
-  return new OpenAI({ apiKey, baseURL, timeout: TEXT_TIMEOUT_MS });
+  return { apiKey, baseURL };
 }
 
 export function isAgnesConfigured() {
@@ -54,26 +55,41 @@ async function withTimeout<T>(
 }
 
 async function chatJson<T>(
-  client: OpenAI,
   system: string,
   user: string,
   model = "agnes-2.0-flash",
 ): Promise<T> {
+  const { apiKey, baseURL } = getApiConfig();
+
   const response = await withTimeout(
-    client.chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
+    fetch(`${baseURL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+      }),
     }),
     TEXT_TIMEOUT_MS,
     `Agnes chat (${model})`,
   );
 
-  const content = response.choices[0]?.message?.content;
+  if (!response.ok) {
+    throw new Error(`Chat failed: ${response.status}`);
+  }
+
+  const payload = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  const content = payload.choices?.[0]?.message?.content;
   if (!content) {
     throw new Error("Empty response from Agnes");
   }
@@ -84,13 +100,7 @@ async function chatJson<T>(
 export async function fetchLiveTrendSignal(
   category: Category,
 ): Promise<TrendSignal> {
-  const client = getAgnesClient();
-  if (!client) {
-    throw new Error("Agnes API not configured");
-  }
-
   return chatJson<TrendSignal>(
-    client,
     "You are a TikTok commerce trend analyst for Southeast Asia. Return valid JSON only.",
     `What are the top 3 trending content formats and hashtags for ${category} sellers in Indonesia this week?
 Return JSON: { "summary": string, "trends": [{ "format": string, "hashtag": string, "whyWinning": string }] }`,
@@ -101,11 +111,6 @@ export async function generateSellingPlan(
   product: ProductInput,
   trendSignal: TrendSignal,
 ) {
-  const client = getAgnesClient();
-  if (!client) {
-    throw new Error("Agnes API not configured");
-  }
-
   return chatJson<{
     sellingStyle: "top-pick" | "key-ingredient" | "life-change";
     targetBuyer:
@@ -115,7 +120,6 @@ export async function generateSellingPlan(
       | "luxury-buyer";
     whyThisWorks: string;
   }>(
-    client,
     "You are a taste economy strategist for SEA e-commerce sellers. Return valid JSON only.",
     `Product: ${product.name}
 Price: ${product.price}
@@ -135,11 +139,6 @@ export async function generateChannelCopy(
     whyThisWorks: string;
   },
 ) {
-  const client = getAgnesClient();
-  if (!client) {
-    throw new Error("Agnes API not configured");
-  }
-
   return chatJson<{
     hookLine: string;
     script: string;
@@ -149,7 +148,6 @@ export async function generateChannelCopy(
       whatsapp: string;
     };
   }>(
-    client,
     "You are a bilingual Bahasa Indonesia content creator for TikTok Shop sellers. Return valid JSON only. Write punchy, taste-native copy.",
     `Product: ${product.name}
 Price: ${product.price}
@@ -174,123 +172,102 @@ export async function generateHeroImage(
   product: ProductInput,
   sellingStyle: string,
 ): Promise<string> {
-  const client = getAgnesClient();
-  if (!client) {
-    throw new Error("Agnes API not configured");
-  }
+  const { apiKey, baseURL } = getApiConfig();
 
   const prompt = `Cinematic product hero image for ${product.name}, ${sellingStyle} selling style, clean beauty product photography, soft natural light, premium e-commerce aesthetic`;
 
   const response = await withTimeout(
-    client.images.generate({
-      model: "agnes-image-2.1-flash",
-      prompt,
-      n: 1,
-      size: "1024x1024",
+    fetch(`${baseURL}/images/generations`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "agnes-image-2.1-flash",
+        prompt,
+        n: 1,
+        size: "1024x1024",
+      }),
     }),
     IMAGE_TIMEOUT_MS,
     "Agnes image generation",
   );
 
-  const item = response.data?.[0];
-  const url = item?.url;
-  if (url) return url;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Image failed: ${response.status} ${errorText}`);
+  }
 
-  const b64 = item?.b64_json;
-  if (b64) return `data:image/png;base64,${b64}`;
+  const payload = (await response.json()) as {
+    data?: Array<{ url?: string; b64_json?: string }>;
+  };
+
+  const item = payload.data?.[0];
+  if (item?.url) return item.url;
+  if (item?.b64_json) return `data:image/png;base64,${item.b64_json}`;
 
   throw new Error("No image returned from Agnes-Image");
 }
 
-interface VideoCreateResponse {
-  taskId?: string;
-  videoId?: string;
+function extractVideoUrl(payload: VideoTaskResponse): string | null {
+  const candidates = [
+    payload.video_url,
+    payload.url,
+    payload.remixed_from_video_id,
+  ];
+
+  for (const candidate of candidates) {
+    if (
+      typeof candidate === "string" &&
+      (candidate.startsWith("http://") ||
+        candidate.startsWith("https://") ||
+        candidate.startsWith("/"))
+    ) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+interface VideoTaskResponse {
   id?: string;
-  data?: { taskId?: string; videoId?: string; id?: string };
-}
-
-interface VideoPollResponse {
+  task_id?: string;
   status?: string;
-  state?: string;
+  progress?: number;
+  error?: string | null;
+  remixed_from_video_id?: string;
   video_url?: string;
-  videoUrl?: string;
   url?: string;
-  output?: { url?: string; video_url?: string };
-  data?: {
-    status?: string;
-    state?: string;
-    video_url?: string;
-    videoUrl?: string;
-    url?: string;
-  };
 }
 
-function extractVideoId(payload: VideoCreateResponse): string | null {
-  return (
-    payload.videoId ??
-    payload.taskId ??
-    payload.id ??
-    payload.data?.videoId ??
-    payload.data?.taskId ??
-    payload.data?.id ??
-    null
-  );
-}
-
-function extractVideoUrl(payload: VideoPollResponse): string | null {
-  return (
-    payload.video_url ??
-    payload.videoUrl ??
-    payload.url ??
-    payload.output?.url ??
-    payload.output?.video_url ??
-    payload.data?.video_url ??
-    payload.data?.videoUrl ??
-    payload.data?.url ??
-    null
-  );
-}
-
-function isVideoReady(payload: VideoPollResponse): boolean {
-  const status = (
-    payload.status ??
-    payload.state ??
-    payload.data?.status ??
-    payload.data?.state ??
-    ""
-  ).toLowerCase();
-
-  return ["succeeded", "success", "completed", "done", "finished"].includes(
-    status,
-  );
-}
-
-async function pollVideoResult(
+async function pollVideoTask(
   baseURL: string,
   apiKey: string,
-  videoId: string,
+  taskId: string,
 ): Promise<string> {
   const started = Date.now();
 
   while (Date.now() - started < VIDEO_POLL_TIMEOUT_MS) {
-    const pollUrls = [
-      `${baseURL}/videos/${videoId}`,
-      `${baseURL}/agnesapi?video_id=${videoId}`,
-    ];
+    const response = await fetch(`${baseURL}/videos/${taskId}`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
 
-    for (const pollUrl of pollUrls) {
-      const response = await fetch(pollUrl, {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      });
+    if (!response.ok) {
+      throw new Error(`Video poll failed: ${response.status}`);
+    }
 
-      if (!response.ok) continue;
+    const payload = (await response.json()) as VideoTaskResponse;
 
-      const payload = (await response.json()) as VideoPollResponse;
-      const url = extractVideoUrl(payload);
-      if (url) return url;
-      if (isVideoReady(payload)) {
-        throw new Error("Video marked ready but no URL returned");
-      }
+    if (payload.status === "failed" || payload.error) {
+      throw new Error(payload.error ?? "Video generation failed");
+    }
+
+    const url = extractVideoUrl(payload);
+
+    if (payload.status === "completed" && url) {
+      return url;
     }
 
     await new Promise((resolve) => setTimeout(resolve, VIDEO_POLL_INTERVAL_MS));
@@ -305,7 +282,7 @@ export async function generateHookVideo(
 ): Promise<string> {
   const { apiKey, baseURL } = getApiConfig();
 
-  const prompt = `10-second cinematic product hook video for ${product.name}. Opening hook: ${hookLine}. Close-up product bottle, warm golden lighting, soft camera push-in, premium skincare aesthetic.`;
+  const prompt = `Cinematic product hook for ${product.name}. Opening line: ${hookLine}. Close-up serum bottle, warm golden lighting, premium skincare aesthetic.`;
 
   const createResponse = await withTimeout(
     fetch(`${baseURL}/videos`, {
@@ -319,11 +296,11 @@ export async function generateHookVideo(
         prompt,
         height: 720,
         width: 1280,
-        num_frames: 61,
+        num_frames: VIDEO_NUM_FRAMES,
         frame_rate: 24,
       }),
     }),
-    TEXT_TIMEOUT_MS,
+    VIDEO_CREATE_TIMEOUT_MS,
     "Agnes video create",
   );
 
@@ -332,12 +309,12 @@ export async function generateHookVideo(
     throw new Error(`Video create failed: ${createResponse.status} ${errorText}`);
   }
 
-  const created = (await createResponse.json()) as VideoCreateResponse;
-  const videoId = extractVideoId(created);
+  const created = (await createResponse.json()) as VideoTaskResponse;
+  const taskId = created.id ?? created.task_id;
 
-  if (!videoId) {
+  if (!taskId) {
     throw new Error("No video task id returned from Agnes-Video");
   }
 
-  return pollVideoResult(baseURL, apiKey, videoId);
+  return pollVideoTask(baseURL, apiKey, taskId);
 }

@@ -23,6 +23,6 @@ export function getCachedHookVideoUrl(): string {
   return "/demo-hook.mp4";
 }
 
-export function getPlaceholderHeroImage(): string {
-  return "/placeholder-hero.svg";
+export function getDemoHeroImage(): string {
+  return "/demo-hero.png";
 }

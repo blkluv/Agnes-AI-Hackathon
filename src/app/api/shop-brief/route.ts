@@ -2,6 +2,7 @@ import { createSseStream } from "@/lib/sse";
 import { parseProduct, runShopBriefPipeline } from "@/lib/orchestrator";
 
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
   let body: unknown;

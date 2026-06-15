@@ -8,13 +8,15 @@ import {
 } from "./agnes";
 import {
   getCachedHookVideoUrl,
-  getPlaceholderHeroImage,
+  getDemoHeroImage,
   loadCachedTrendSignal,
   loadDemoBrief,
 } from "./fallbacks";
+import { toDisplayMediaUrl } from "./media";
 import type {
   BriefStepEvent,
   Category,
+  ImageSource,
   ProductInput,
   ShopBriefData,
   TrendSource,
@@ -67,16 +69,22 @@ async function resolveTrendSignal(
 async function resolveHeroImage(
   product: ProductInput,
   sellingStyle: string,
-): Promise<string> {
+): Promise<{ heroImageUrl: string; imageSource: ImageSource }> {
   if (isAgnesConfigured()) {
     try {
-      return await generateHeroImage(product, sellingStyle);
+      const heroImageUrl = toDisplayMediaUrl(
+        await generateHeroImage(product, sellingStyle),
+      );
+      return { heroImageUrl, imageSource: "live" };
     } catch {
       // fall through
     }
   }
 
-  return getPlaceholderHeroImage();
+  return {
+    heroImageUrl: getDemoHeroImage(),
+    imageSource: "cached",
+  };
 }
 
 async function resolveHookVideo(
@@ -85,7 +93,9 @@ async function resolveHookVideo(
 ): Promise<{ hookVideoUrl: string; videoSource: VideoSource }> {
   if (isAgnesConfigured()) {
     try {
-      const hookVideoUrl = await generateHookVideo(product, hookLine);
+      const hookVideoUrl = toDisplayMediaUrl(
+        await generateHookVideo(product, hookLine),
+      );
       return { hookVideoUrl, videoSource: "live" };
     } catch {
       // fall through
@@ -145,21 +155,18 @@ export async function runShopBriefPipeline(
       data: { hookLine, script, channelCopy },
     });
 
-    const heroImageUrl = await resolveHeroImage(
-      product,
-      sellingPlan.sellingStyle,
-    );
+    const imagePromise = resolveHeroImage(product, sellingPlan.sellingStyle);
+    const videoPromise = resolveHookVideo(product, hookLine);
+
+    const { heroImageUrl, imageSource } = await imagePromise;
 
     send({
       step: 4,
       label: "Creating image",
-      data: { heroImageUrl },
+      data: { heroImageUrl, imageSource },
     });
 
-    const { hookVideoUrl, videoSource } = await resolveHookVideo(
-      product,
-      hookLine,
-    );
+    const { hookVideoUrl, videoSource } = await videoPromise;
 
     send({
       step: 5,
@@ -200,7 +207,7 @@ export async function runShopBriefPipeline(
     send({
       step: 4,
       label: "Creating image",
-      data: { heroImageUrl: demoBrief.heroImageUrl },
+      data: { heroImageUrl: demoBrief.heroImageUrl, imageSource: "cached" },
     });
     send({
       step: 5,

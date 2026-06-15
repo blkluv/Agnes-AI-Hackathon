@@ -14,8 +14,10 @@ import {
   type SellingPlan,
   type TrendSignal,
   type TrendSource,
+  type ImageSource,
   type VideoSource,
 } from "@/lib/types";
+import { getDemoHeroFallback, getDemoVideoFallback } from "@/lib/media";
 
 type StepState = "pending" | "active" | "complete";
 
@@ -27,6 +29,7 @@ interface BriefState {
   script?: string;
   channelCopy?: ChannelCopy;
   heroImageUrl?: string;
+  imageSource?: ImageSource;
   hookVideoUrl?: string;
   videoSource?: VideoSource;
   briefStatus?: BriefStatus;
@@ -49,6 +52,51 @@ function SourceBadge({ label, value }: { label: string; value: string }) {
     <span className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-2.5 py-1 text-xs font-medium text-muted">
       {label}: <span className="text-foreground">{value}</span>
     </span>
+  );
+}
+
+function HeroImagePanel({ src }: { src: string }) {
+  const [displaySrc, setDisplaySrc] = useState(src);
+
+  useEffect(() => {
+    setDisplaySrc(src);
+  }, [src]);
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={displaySrc}
+      alt="Hero product"
+      className="max-h-80 rounded-xl border border-border object-cover"
+      onError={() => {
+        if (displaySrc !== getDemoHeroFallback()) {
+          setDisplaySrc(getDemoHeroFallback());
+        }
+      }}
+    />
+  );
+}
+
+function HookVideoPanel({ src }: { src: string }) {
+  const [displaySrc, setDisplaySrc] = useState(src);
+
+  useEffect(() => {
+    setDisplaySrc(src);
+  }, [src]);
+
+  return (
+    <video
+      key={displaySrc}
+      src={displaySrc}
+      controls
+      playsInline
+      className="w-full rounded-xl border border-border"
+      onError={() => {
+        if (displaySrc !== getDemoVideoFallback()) {
+          setDisplaySrc(getDemoVideoFallback());
+        }
+      }}
+    />
   );
 }
 
@@ -150,9 +198,18 @@ export function TasteSellApp() {
         ...(data.script ? { script: data.script as string } : {}),
         ...(data.channelCopy ? { channelCopy: data.channelCopy as ChannelCopy } : {}),
         ...(data.heroImageUrl ? { heroImageUrl: data.heroImageUrl as string } : {}),
+        ...(data.imageSource ? { imageSource: data.imageSource as ImageSource } : {}),
         ...(data.hookVideoUrl ? { hookVideoUrl: data.hookVideoUrl as string } : {}),
         ...(data.videoSource ? { videoSource: data.videoSource as VideoSource } : {}),
       }));
+
+      if (event.step === 4 && data.heroImageUrl) {
+        setActiveTab("image");
+      }
+
+      if (event.step === 5 && data.hookVideoUrl) {
+        setActiveTab("video");
+      }
     }
   }
 
@@ -267,6 +324,9 @@ export function TasteSellApp() {
               {brief.trendSource ? (
                 <SourceBadge label="Trend Source" value={brief.trendSource} />
               ) : null}
+              {brief.imageSource ? (
+                <SourceBadge label="Image Source" value={brief.imageSource} />
+              ) : null}
               {brief.videoSource ? (
                 <SourceBadge label="Video Source" value={brief.videoSource} />
               ) : null}
@@ -377,19 +437,14 @@ export function TasteSellApp() {
                     </pre>
                   )}
                   {activeTab === "image" && brief.heroImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={brief.heroImageUrl}
-                      alt="Hero product"
-                      className="max-h-80 rounded-xl border border-border object-cover"
-                    />
+                    <HeroImagePanel src={brief.heroImageUrl} />
+                  ) : activeTab === "image" ? (
+                    <p className="text-muted">Generating hero image...</p>
                   ) : null}
                   {activeTab === "video" && brief.hookVideoUrl ? (
-                    <video
-                      src={brief.hookVideoUrl}
-                      controls
-                      className="w-full rounded-xl border border-border"
-                    />
+                    <HookVideoPanel src={brief.hookVideoUrl} />
+                  ) : activeTab === "video" ? (
+                    <p className="text-muted">Generating hook video...</p>
                   ) : null}
                 </div>
               </div>
