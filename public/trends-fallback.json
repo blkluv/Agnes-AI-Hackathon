@@ -1,0 +1,62 @@
+{
+  "skincare": {
+    "summary": "Skincare sellers in Indonesia are winning with ingredient-led reviews and dermatologist-style education hooks.",
+    "trends": [
+      {
+        "format": "Ingredient close-up + voiceover review",
+        "hashtag": "#serumviral",
+        "whyWinning": "Educated buyers want active ingredients named clearly before they trust a new serum."
+      },
+      {
+        "format": "Before/after glow routine",
+        "hashtag": "#kulitcerah",
+        "whyWinning": "Transformation clips build desire fast for brightening products with visible results."
+      },
+      {
+        "format": "Price-per-ml value breakdown",
+        "hashtag": "#skincaremurah",
+        "whyWinning": "Mid-price serums win when sellers prove value versus imported alternatives."
+      }
+    ]
+  },
+  "fashion": {
+    "summary": "Fashion sellers are leaning into outfit transitions and fabric close-ups for modest and streetwear drops.",
+    "trends": [
+      {
+        "format": "3-look transition reel",
+        "hashtag": "#ootdindonesia",
+        "whyWinning": "Quick styling changes keep watch time high for affordable fashion hauls."
+      },
+      {
+        "format": "Fabric texture macro shot",
+        "hashtag": "#kualitaspremium",
+        "whyWinning": "Quality-focused buyers need proof the material feels better than fast-fashion dupes."
+      },
+      {
+        "format": "Get-ready-with-me mirror clip",
+        "hashtag": "#fashiontiktok",
+        "whyWinning": "Aspirational styling content helps new sellers compete without brand recognition."
+      }
+    ]
+  },
+  "food": {
+    "summary": "Food sellers are using ASMR prep shots and origin stories for snacks and home-made sauces.",
+    "trends": [
+      {
+        "format": "ASMR cooking close-up",
+        "hashtag": "#mukbangindonesia",
+        "whyWinning": "Sensory food footage stops scrollers and makes homemade products feel premium."
+      },
+      {
+        "format": "Family recipe origin story",
+        "hashtag": "#reseviral",
+        "whyWinning": "Authentic backstory builds trust for new food brands without reviews."
+      },
+      {
+        "format": "Bundle deal unboxing",
+        "hashtag": "#snackbox",
+        "whyWinning": "Variety packs help cold-start sellers increase first-order basket size."
+      }
+    ]
+  }
+}

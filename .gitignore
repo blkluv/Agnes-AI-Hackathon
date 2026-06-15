@@ -1,0 +1,35 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+
+# env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# agent skills (not part of app)
+.agents/
+skills-lock.json
+.scratch/
+
+# editor
+.cursor/

@@ -1,0 +1,42 @@
+{
+  "trendSignal": {
+    "summary": "Vitamin C and brightening serums are spiking in Jakarta TikTok Shop — ingredient-first hooks are outperforming lifestyle clips.",
+    "trends": [
+      {
+        "format": "Ingredient close-up + voiceover review",
+        "hashtag": "#serumviral",
+        "whyWinning": "Educated buyers want active ingredients named clearly before they trust a new serum."
+      },
+      {
+        "format": "Dermatologist-style explainer",
+        "hashtag": "#vitamincserum",
+        "whyWinning": "Authority framing helps unknown brands borrow trust in a crowded serum category."
+      },
+      {
+        "format": "Glow routine before/after",
+        "hashtag": "#kulitcerah",
+        "whyWinning": "Visible brightening outcomes create shareable proof for mid-price products."
+      }
+    ]
+  },
+  "trendSource": "cached",
+  "sellingPlan": {
+    "sellingStyle": "key-ingredient",
+    "targetBuyer": "quality-focused",
+    "whyThisWorks": "A vitamin C serum at Rp 185.000 sits in the educated-buyer range. This week's winning posts lead with active ingredients and proof of concentration, not lifestyle transformation. Key-ingredient positioning matches how quality-focused buyers decide."
+  },
+  "hookLine": "15% vitamin C ini yang bikin kulit kamu glowing dalam 2 minggu.",
+  "script": "[Close-up botol] \"15% vitamin C, bukan gimmick.\" [Teteskan ke tangan] \"Tekstur ringan, cepat meresap.\" [Apply ke pipi] \"Pakai pagi hari sebelum sunscreen.\" [Before/after split] \"Dua minggu, kulit lebih cerah.\" [CTA ke kamera] \"Link di keranjang kuning.\"",
+  "channelCopy": {
+    "tiktok": "15% Vitamin C yang dermatologist TikTok lagi ramein ✨ Tekstur ringan, cocok kulit tropis. Rp 185.000 — link di bio! #serumviral #vitaminc #kulitcerah #skincareindonesia",
+    "shopee": {
+      "title": "Serum Vitamin C 15% Brightening Glow | Kulit Cerah 2 Minggu",
+      "description": "Serum vitamin C 15% dengan tekstur ringan dan cepat meresap. Cocok untuk kulit kusam dan noda hitam. Gunakan pagi hari sebelum sunscreen. Hasil lebih cerah dalam 2 minggu pemakaian rutin. Isi 30ml. Harga Rp 185.000."
+    },
+    "whatsapp": "Hai! Serum Vitamin C 15% kami lagi best seller minggu ini — kulit cerah dalam 2 minggu, cuma Rp 185.000. Mau aku kirim link ordernya?"
+  },
+  "heroImageUrl": "/placeholder-hero.svg",
+  "hookVideoUrl": "/demo-hook.mp4",
+  "videoSource": "cached",
+  "briefStatus": "complete"
+}
