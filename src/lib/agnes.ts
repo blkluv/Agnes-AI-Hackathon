@@ -30,23 +30,23 @@ function categoryVisualContext(category: Category): {
     case "fashion":
       return {
         heroStyle:
-          "fashion e-commerce product shot, fabric texture and garment styling, natural light, premium apparel aesthetic",
+          "US fashion e-commerce product shot, clean studio aesthetic, natural light, premium American apparel look",
         videoScene:
-          "styled garment or fabric close-up, warm natural lighting, fashion retail aesthetic",
+          "styled garment close-up with soft studio lighting, American retail aesthetic",
       };
     case "food":
       return {
         heroStyle:
-          "food product photography, appetizing styling, soft natural light, premium F&B aesthetic",
+          "US food product photography, appetizing styling, bright clean lighting, premium F&B aesthetic",
         videoScene:
-          "close-up of the food product with texture detail, warm appetizing lighting",
+          "close-up of the food product with texture detail, warm inviting lighting",
       };
     default:
       return {
         heroStyle:
-          "beauty product photography, soft natural light, premium skincare aesthetic",
+          "US beauty product photography, soft natural light, clean skincare aesthetic, minimal studio background",
         videoScene:
-          "close-up product bottle, warm golden lighting, premium skincare aesthetic",
+          "close-up product bottle with soft golden lighting, premium skincare aesthetic",
       };
   }
 }
@@ -130,8 +130,8 @@ export async function fetchLiveTrendSignal(
   category: Category,
 ): Promise<TrendSignal> {
   return chatJson<TrendSignal>(
-    "You are a TikTok commerce trend analyst for Southeast Asia. Return valid JSON only.",
-    `What are the top 3 trending content formats and hashtags for ${category} sellers in Indonesia this week?
+    "You are a TikTok commerce trend analyst for the United States. Return valid JSON only.",
+    `What are the top 3 trending content formats and hashtags for ${category} sellers in the US this week?
 Return JSON: { "summary": string, "trends": [{ "format": string, "hashtag": string, "whyWinning": string }] }`,
   );
 }
@@ -149,9 +149,9 @@ export async function generateSellingPlan(
       | "luxury-buyer";
     whyThisWorks: string;
   }>(
-    "You are a taste economy strategist for SEA e-commerce sellers. Return valid JSON only.",
+    "You are a taste economy strategist for US e-commerce sellers. Consider the price in USD to correctly gauge buyer psychology (e.g., $50 is mid-tier, $200+ is luxury). Return valid JSON only.",
     `Product: ${product.name}
-Price: ${product.price}
+Price: $${product.price} USD
 Category: ${product.category}
 Trending formats this week: ${JSON.stringify(trendSignal.trends)}
 
@@ -173,25 +173,25 @@ export async function generateChannelCopy(
     script: string;
     channelCopy: {
       tiktok: string;
-      shopee: { title: string; description: string };
+      instagram: string; // Changed from 'shopee' to 'instagram'
       whatsapp: string;
     };
   }>(
-    "You are a bilingual Bahasa Indonesia content creator for TikTok Shop sellers. Return valid JSON only. Write punchy, taste-native copy.",
+    "You are a native English content creator for TikTok Shop and Instagram sellers in the US. Return valid JSON only. Write punchy, trend-native copy targeting American consumers.",
     `Product: ${product.name}
-Price: ${product.price}
+Price: $${product.price} USD
 Selling Style: ${sellingPlan.sellingStyle}
 Target Buyer: ${sellingPlan.targetBuyer}
 Why this works: ${sellingPlan.whyThisWorks}
 
 Generate JSON:
 {
-  "hookLine": "3-second opener in Bahasa",
+  "hookLine": "3-second opener in English",
   "script": "15-second filming guide with [shot directions]",
   "channelCopy": {
-    "tiktok": "caption with hashtags",
-    "shopee": { "title": "listing title", "description": "listing description" },
-    "whatsapp": "short sharing caption"
+    "tiktok": "caption with trending US hashtags",
+    "instagram": "caption with aesthetic hashtags for the US feed",
+    "whatsapp": "short sharing caption for DMs or broadcast lists"
   }
 }`,
   );
