@@ -38,9 +38,7 @@ export interface SellingPlan {
 }
 
 export interface ChannelCopy {
-  tiktok: string;
-  instagram: string; // Changed from 'shopee' to 'instagram' for US market
-  whatsapp: string;
+  tiktok: string;   // Only TikTok remains
 }
 
 export interface ShopBriefData {
@@ -73,7 +71,7 @@ export const BRIEF_STEPS = [
 
 export const DEMO_PRODUCT: ProductInput = {
   name: "Vitamin C Brightening Serum",
-  price: "$45.00", // Updated to USD
+  price: "$45.00",
   category: "skincare",
 };
 
