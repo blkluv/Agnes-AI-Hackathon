@@ -22,12 +22,11 @@ import { getHeroFallbackForProduct, getVideoFallbackForProduct } from "@/lib/med
 import { ThinkingIndicator } from "@/components/ThinkingIndicator";
 
 type StepState = "pending" | "active" | "complete";
+// ✅ Only tabs we need: hook, script, tiktok, image, video
 type ContentTab =
   | "hook"
   | "script"
   | "tiktok"
-  | "instagram"   // Changed from "shopee"
-  | "whatsapp"
   | "image"
   | "video";
 
@@ -50,12 +49,11 @@ interface BriefState {
 
 const INITIAL_FORM: ProductInput = { ...DEMO_PRODUCT };
 
+// ✅ Only TikTok remains
 const CONTENT_TABS: Array<{ id: ContentTab; label: string }> = [
   { id: "hook", label: "Hook Line" },
   { id: "script", label: "Script" },
   { id: "tiktok", label: "TikTok" },
-  { id: "instagram", label: "Instagram" },   // Changed from "Shopee"
-  { id: "whatsapp", label: "WhatsApp" },
   { id: "image", label: "Image" },
   { id: "video", label: "Hook Video" },
 ];
@@ -65,7 +63,7 @@ const HOW_IT_WORKS = [
   { step: 2, title: "Generate Shop Brief", detail: "One tap — Agnes does the rest" },
   { step: 3, title: "Watch Brief Steps", detail: "Trend → plan → copy → image → video" },
   { step: 4, title: "Review Shop Brief", detail: "Scan trends, plan, and copy" },
-  { step: 5, title: "Copy and post", detail: "TikTok, Instagram, WhatsApp — manual" }, // Updated
+  { step: 5, title: "Copy and post", detail: "TikTok — copy, paste, and sell" },
 ];
 
 const BRIEF_INSIDE = [
@@ -83,7 +81,7 @@ const BRIEF_INSIDE = [
   },
   {
     title: "Content Bundle",
-    description: "Hook, script, channel copy, hero image, and hook video — ready to post.",
+    description: "Hook, script, TikTok caption, hero image, and hook video — ready to post.",
     accent: "border-papaya/30 bg-papaya/5",
     dot: "bg-papaya",
   },
@@ -200,7 +198,7 @@ function HookVideoPanel({
           Hook video not available
         </p>
         <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-          Live generation did not complete. Use your hook script and channel copy
+          Live generation did not complete. Use your hook script and TikTok caption
           above to record your own clip.
         </p>
       </div>
@@ -376,7 +374,7 @@ export function TasteSellApp() {
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted">
-              Demo: Sarah, New York   {/* Changed from "Rina, Jakarta" */}
+              Demo: Sarah, New York
             </span>
             {agnesLive === true ? (
               <StatusPill label="Agnes" value="connected" tone="live" />
@@ -394,8 +392,8 @@ export function TasteSellApp() {
               Your daily Shop Brief
             </h1>
             <p className="mt-2 max-w-2xl text-base leading-relaxed text-muted">
-              Agnes turns one product into trend-matched copy for TikTok, Instagram, and
-              WhatsApp — in English, in about a minute.   {/* Updated channels and language */}
+              Agnes turns one product into a trend-matched TikTok caption and hook video —
+              in English, in about a minute.
             </p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -675,18 +673,6 @@ export function TasteSellApp() {
                       {brief.channelCopy?.tiktok}
                     </pre>
                   )}
-                  {activeTab === "instagram" && (   // Changed from "shopee"
-                    <div className="space-y-3">
-                      <pre className="whitespace-pre-wrap font-sans">
-                        {brief.channelCopy?.instagram}   {/* Uses instagram field */}
-                      </pre>
-                    </div>
-                  )}
-                  {activeTab === "whatsapp" && (
-                    <pre className="whitespace-pre-wrap font-sans">
-                      {brief.channelCopy?.whatsapp}
-                    </pre>
-                  )}
                   {activeTab === "image" && brief.heroImageUrl ? (
                     <HeroImagePanel
                       src={brief.heroImageUrl}
@@ -742,7 +728,7 @@ export function TasteSellApp() {
         <p className="font-display text-base font-semibold">
           TasteSell turns Agnes into the first app a seller opens before they post.
         </p>
-        <p className="mt-1 text-white/70">From blank page to first post.</p>
+        <p className="mt-1 text-white/70">From blank page to first sale on TikTok.</p>
       </footer>
     </div>
   );
