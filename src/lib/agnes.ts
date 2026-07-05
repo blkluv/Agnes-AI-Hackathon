@@ -168,16 +168,15 @@ export async function generateChannelCopy(
     whyThisWorks: string;
   },
 ) {
+  // ✅ UPDATED: TikTok only – removed instagram and whatsapp
   return chatJson<{
     hookLine: string;
     script: string;
     channelCopy: {
       tiktok: string;
-      instagram: string; // Changed from 'shopee' to 'instagram'
-      whatsapp: string;
     };
   }>(
-    "You are a native English content creator for TikTok Shop and Instagram sellers in the US. Return valid JSON only. Write punchy, trend-native copy targeting American consumers.",
+    "You are a native English content creator for TikTok Shop sellers in the US. Return valid JSON only. Write punchy, trend-native copy targeting American consumers.",
     `Product: ${product.name}
 Price: $${product.price} USD
 Selling Style: ${sellingPlan.sellingStyle}
@@ -189,9 +188,7 @@ Generate JSON:
   "hookLine": "3-second opener in English",
   "script": "15-second filming guide with [shot directions]",
   "channelCopy": {
-    "tiktok": "caption with trending US hashtags",
-    "instagram": "caption with aesthetic hashtags for the US feed",
-    "whatsapp": "short sharing caption for DMs or broadcast lists"
+    "tiktok": "caption with trending US hashtags"
   }
 }`,
   );
