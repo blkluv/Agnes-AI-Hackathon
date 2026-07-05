@@ -26,7 +26,7 @@ type ContentTab =
   | "hook"
   | "script"
   | "tiktok"
-  | "shopee"
+  | "instagram"   // Changed from "shopee"
   | "whatsapp"
   | "image"
   | "video";
@@ -54,7 +54,7 @@ const CONTENT_TABS: Array<{ id: ContentTab; label: string }> = [
   { id: "hook", label: "Hook Line" },
   { id: "script", label: "Script" },
   { id: "tiktok", label: "TikTok" },
-  { id: "shopee", label: "Shopee" },
+  { id: "instagram", label: "Instagram" },   // Changed from "Shopee"
   { id: "whatsapp", label: "WhatsApp" },
   { id: "image", label: "Image" },
   { id: "video", label: "Hook Video" },
@@ -65,7 +65,7 @@ const HOW_IT_WORKS = [
   { step: 2, title: "Generate Shop Brief", detail: "One tap — Agnes does the rest" },
   { step: 3, title: "Watch Brief Steps", detail: "Trend → plan → copy → image → video" },
   { step: 4, title: "Review Shop Brief", detail: "Scan trends, plan, and copy" },
-  { step: 5, title: "Copy and post", detail: "TikTok, Shopee, WhatsApp — manual" },
+  { step: 5, title: "Copy and post", detail: "TikTok, Instagram, WhatsApp — manual" }, // Updated
 ];
 
 const BRIEF_INSIDE = [
@@ -376,7 +376,7 @@ export function TasteSellApp() {
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted">
-              Demo: Rina, Jakarta
+              Demo: Sarah, New York   {/* Changed from "Rina, Jakarta" */}
             </span>
             {agnesLive === true ? (
               <StatusPill label="Agnes" value="connected" tone="live" />
@@ -394,8 +394,8 @@ export function TasteSellApp() {
               Your daily Shop Brief
             </h1>
             <p className="mt-2 max-w-2xl text-base leading-relaxed text-muted">
-              Agnes turns one product into trend-matched copy for TikTok, Shopee, and
-              WhatsApp — in Bahasa, in about a minute.
+              Agnes turns one product into trend-matched copy for TikTok, Instagram, and
+              WhatsApp — in English, in about a minute.   {/* Updated channels and language */}
             </p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -675,11 +675,10 @@ export function TasteSellApp() {
                       {brief.channelCopy?.tiktok}
                     </pre>
                   )}
-                  {activeTab === "shopee" && (
+                  {activeTab === "instagram" && (   // Changed from "shopee"
                     <div className="space-y-3">
-                      <p className="font-semibold">{brief.channelCopy?.shopee.title}</p>
                       <pre className="whitespace-pre-wrap font-sans">
-                        {brief.channelCopy?.shopee.description}
+                        {brief.channelCopy?.instagram}   {/* Uses instagram field */}
                       </pre>
                     </div>
                   )}
